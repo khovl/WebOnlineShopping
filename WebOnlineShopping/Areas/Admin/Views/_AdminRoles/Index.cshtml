@@ -1,0 +1,87 @@
+﻿@model IEnumerable<WebOnlineShopping.Models.Role>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .table {
+        max-width:80%;
+        margin-top:30px;
+        margin-left:auto
+    }
+    button{
+        width:60px;
+        height:40px;
+        border-radius:12px;
+        background:#ccc;       
+    }
+    button:hover {
+         background: red;
+        transition:.25s
+    }
+
+    .btn-create{
+        width: 120px;
+        height: 50px;
+        border-radius: 12px;
+        background: #ccc;
+    }
+    p {       
+        margin-left:280px
+    }
+
+</style>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Tên
+            </th>
+            <th>
+                Mô tả
+            </th>
+            <th>
+                Chức năng
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+                <td>
+                    @item.RoleId
+                </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoleName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Decription)
+            </td>
+            <td>
+               <button>
+                   <a asp-action="Edit" asp-route-id="@item.RoleId">Edit</a>
+                </button>
+                <button>
+                    <a asp-action="Details" asp-route-id="@item.RoleId">View</a>
+                </button> 
+                 <button>
+                        <a asp-action="Delete" asp-route-id="@item.RoleId">Delete</a>
+                 </button>                 
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<p class="add">
+    <button class="btn-create">
+        <a asp-action="Create">Thêm mới</a>
+    </button>
+</p>

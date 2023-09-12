@@ -1,0 +1,117 @@
+﻿@using PagedList.Core.Mvc
+@model PagedList.Core.IPagedList<WebOnlineShopping.Models.Customer>
+
+@{
+    int CurrentPage = ViewBag.CurrentPage;
+    ViewData["Title"] = "Danh sách khách hàng" + CurrentPage;
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+
+
+<style>
+    .table {
+        max-width: 80%;
+        margin-top: 30px;
+        margin-left: auto
+    }
+
+    button {
+        width: 60px;
+        height: 40px;
+        border-radius: 12px;
+        background: #ccc;
+    }
+
+        button:hover {
+            background: red;
+            transition: .25s
+        }
+
+    .btn-create {
+        width: 120px;
+        height: 50px;
+        border-radius: 12px;
+        background: #ccc;
+    }
+
+    p {
+        margin-left: 280px
+    }
+
+</style>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Họ và tên
+            </th>          
+            <th>
+                Địa chỉ
+            </th>                             
+            <th>
+                Trạng thái
+            </th>
+            <th>
+                Thông tin khác
+            </th>
+            <th>
+                Chức năng
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @item.CustomerId
+            </td>
+            <td>
+                @item.CustomerName
+   
+            </td>
+
+           <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>          
+            <td>
+                    @if (item.Active == true)
+                    {
+                        <div>Active</div>
+                    }
+                    else
+                    {
+                        <div>Hidden</div>
+                    }
+            </td>
+            <td>
+                Phone: @item.Phone<br>
+                Email: @item.Email<br>
+                Ngày tạo: @item.CreateDate<br>
+                 Lần cuối ĐN: @item.LastLogin<br>
+
+            </td>
+            <td>
+                    <button>
+                        <a asp-action="Edit" asp-route-id="@item.CustomerId">Edit</a>
+                    </button>
+                    <button>
+                        <a asp-action="Details" asp-route-id="@item.CustomerId">View</a>
+                    </button>
+                    <button>
+                        <a asp-action="Delete" asp-route-id="@item.CustomerId">Delete</a>
+                    </button>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<p class="add">
+    <button class="btn-create">
+        <a asp-action="Create">Thêm mới</a>
+    </button>
+</p>
