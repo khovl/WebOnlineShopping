@@ -1,10 +1,11 @@
-﻿@model IEnumerable<WebOnlineShopping.Models.Product>
-
+﻿
+@model X.PagedList.IPagedList<WebOnlineShopping.Models.Product>
+@using X.PagedList.Mvc.Core
 @{
-    ViewData["Title"] = "Index";
+    int CurrentPage = ViewBag.CurrentPage;
+    ViewData["Title"] = "Danh sách sản phẩm" + CurrentPage;
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
-
 
 <style>
     .table {
@@ -36,8 +37,47 @@
         margin-left: 280px
     }
 
+    .form-select {
+        max-width: 20%;
+        margin-top: 30px;
+        margin-left: auto
+    }
+
+    .nav {
+        margin-top: 30px;
+        margin-left: 300px;
+    }
+
+    .pagination {
+        max-width: 20%;
+        margin-left: auto;
+    }
+
+    .form-search {
+        margin-top: 30px;
+ 
+        margin-left: 300px;
+    }
+  
 </style>
-<table class="table">
+
+<h3 class="nav">
+    <a asp-area="Admin" asp-controller="Home" asp-action="Index"><span class="text-muted fw-light">Quản lý /</span> </a>
+    <a>Danh Sách Sản Phẩm: @CurrentPage</a>
+</h3>
+
+<form asp-action="Index" method="get" class="form-search">
+    Nhập tên sản phẩm
+    <input type="text" name="name" />
+    Nhập giá từ
+    <input type="number" name="to" />
+    Đến
+    <input type="number" name="from" />
+    
+    <button>Tìm</button>
+</form>
+
+<table class="table table-bordered">
     <thead>
         <tr>
             <th>
@@ -53,22 +93,21 @@
                 Giá
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Discount)
+                Giảm giá
             </th>
-     
             <th>
-                @Html.DisplayNameFor(model => model.Active)
+                Trạng thái
+            </th>
+            <th>
+                Tồn kho
+            </th>            
+
+            <th>
+                Hình ảnh
             </th>
            
-     
-            <th>
-                @Html.DisplayNameFor(model => model.Stock)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Cat)
-            </th>
-            <th></th>
         </tr>
+  
     </thead>
     <tbody>
 @foreach (var item in Model) {
@@ -83,25 +122,30 @@
                 @Html.DisplayFor(modelItem => item.Sdesc)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Decription)
+                @item.Price
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Discount)
-            </td>
-         
-            <td>
-                @Html.DisplayFor(modelItem => item.Active)
+                @item.Discount
             </td>
 
-            <td>
-                @Html.DisplayFor(modelItem => item.Stock)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CatId)
-            </td>
+                <td>
+                    @if (item.Active == true)
+                    {
+                        <div>In Stock</div>
+                    }
+                    else
+                    {
+                        <div>Out Stock</div>
+                    }
+                </td>
+
+                 <td>
+                   @item.Stock
+                </td>
+                <td>
+                    @item.Video
+                </td>
+                
             <td>
                     <button>
                         <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a>
@@ -122,3 +166,6 @@
         <a asp-action="Create">Thêm mới</a>
     </button>
 </p>
+<div class="pagination">
+    @Html.PagedListPager(Model,page=>Url.Action("Index","_AdminProducts",new {page=page}))
+</div>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +14,18 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
     public class _AdminRolesController : Controller
     {
         private readonly MinimartDBContext _context;
+        public INotyfService _notyfService { get; }
 
-        public _AdminRolesController(MinimartDBContext context)
+        public _AdminRolesController(MinimartDBContext context, INotyfService notyfService)
         {
             _context = context;
+            _notyfService = notyfService;
         }
 
         // GET: Admin/_AdminRoles
         public async Task<IActionResult> Index()
         {
+            ViewData["QuyenTruyCap"] = new SelectList(_context.Roles, "RoleId", "Decription");
               return _context.Roles != null ? 
                           View(await _context.Roles.ToListAsync()) :
                           Problem("Entity set 'MinimartDBContext.Roles'  is null.");
@@ -62,6 +66,7 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
             {
                 _context.Add(role);
                 await _context.SaveChangesAsync();
+                _notyfService.Success("Tạo mới thành công");
                 return RedirectToAction(nameof(Index));
             }
             return View(role);
@@ -101,6 +106,7 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
                 {
                     _context.Update(role);
                     await _context.SaveChangesAsync();
+                    _notyfService.Success("Cập nhật thành công");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -152,6 +158,7 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
             }
             
             await _context.SaveChangesAsync();
+            _notyfService.Success("Xóa thành công");
             return RedirectToAction(nameof(Index));
         }
 

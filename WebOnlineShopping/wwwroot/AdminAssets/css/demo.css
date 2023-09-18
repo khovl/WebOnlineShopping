@@ -34,7 +34,7 @@
 
 /* Navbar page z-index issue solution */
 .content-wrapper .navbar {
-  z-index: auto;
+  z-index: 1;
 }
 
 /*

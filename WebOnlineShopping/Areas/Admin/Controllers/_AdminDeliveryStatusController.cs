@@ -2,101 +2,95 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Google.Apis.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using PagedList.Core;
 using WebOnlineShopping.Models;
 
 namespace WebOnlineShopping.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class _AdminCustomersController : Controller
+    public class _AdminDeliveryStatusController : Controller
     {
         private readonly MinimartDBContext _context;
 
-        public _AdminCustomersController(MinimartDBContext context)
+        public _AdminDeliveryStatusController(MinimartDBContext context)
         {
             _context = context;
         }
 
-        // GET: Admin/_AdminCustomers
-        public IActionResult Index(int? page)
+        // GET: Admin/_AdminDeliveryStatus
+        public async Task<IActionResult> Index()
         {
-            var pageNumber = page == null || page <= 0 ? 1 : page.Value;
-            var pageSize = 20;
-            var IsCustomers = _context.Customers.AsNoTracking().OrderByDescending(x => x.CreateDate);
-            PagedList<Customer> models = new PagedList<Customer>(IsCustomers, pageNumber, pageSize);
-            ViewBag.CurrentPage = pageNumber;
-            return View(models);
+              return _context.DeliveryStatuses != null ? 
+                          View(await _context.DeliveryStatuses.ToListAsync()) :
+                          Problem("Entity set 'MinimartDBContext.DeliveryStatuses'  is null.");
         }
 
-        // GET: Admin/_AdminCustomers/Details/5
+        // GET: Admin/_AdminDeliveryStatus/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Customers == null)
+            if (id == null || _context.DeliveryStatuses == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (customer == null)
+            var deliveryStatus = await _context.DeliveryStatuses
+                .FirstOrDefaultAsync(m => m.DeliveryStatusId == id);
+            if (deliveryStatus == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(deliveryStatus);
         }
 
-        // GET: Admin/_AdminCustomers/Create
+        // GET: Admin/_AdminDeliveryStatus/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Admin/_AdminCustomers/Create
+        // POST: Admin/_AdminDeliveryStatus/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,CustomerName,Birthday,Avatar,Address,Email,Phone,CreateDate,Password,LastLogin,Active")] Customer customer)
+        public async Task<IActionResult> Create([Bind("DeliveryStatusId,Status,Decription")] DeliveryStatus deliveryStatus)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(customer);
+                _context.Add(deliveryStatus);
                 await _context.SaveChangesAsync();
-                
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(deliveryStatus);
         }
 
-        // GET: Admin/_AdminCustomers/Edit/5
+        // GET: Admin/_AdminDeliveryStatus/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Customers == null)
+            if (id == null || _context.DeliveryStatuses == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
+            var deliveryStatus = await _context.DeliveryStatuses.FindAsync(id);
+            if (deliveryStatus == null)
             {
                 return NotFound();
             }
-            return View(customer);
+            return View(deliveryStatus);
         }
 
-        // POST: Admin/_AdminCustomers/Edit/5
+        // POST: Admin/_AdminDeliveryStatus/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,CustomerName,Birthday,Avatar,Address,Email,Phone,CreateDate,Password,LastLogin,Active")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("DeliveryStatusId,Status,Decription")] DeliveryStatus deliveryStatus)
         {
-            if (id != customer.CustomerId)
+            if (id != deliveryStatus.DeliveryStatusId)
             {
                 return NotFound();
             }
@@ -105,12 +99,12 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(customer);
+                    _context.Update(deliveryStatus);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CustomerExists(customer.CustomerId))
+                    if (!DeliveryStatusExists(deliveryStatus.DeliveryStatusId))
                     {
                         return NotFound();
                     }
@@ -121,49 +115,49 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            return View(deliveryStatus);
         }
 
-        // GET: Admin/_AdminCustomers/Delete/5
+        // GET: Admin/_AdminDeliveryStatus/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Customers == null)
+            if (id == null || _context.DeliveryStatuses == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (customer == null)
+            var deliveryStatus = await _context.DeliveryStatuses
+                .FirstOrDefaultAsync(m => m.DeliveryStatusId == id);
+            if (deliveryStatus == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(deliveryStatus);
         }
 
-        // POST: Admin/_AdminCustomers/Delete/5
+        // POST: Admin/_AdminDeliveryStatus/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Customers == null)
+            if (_context.DeliveryStatuses == null)
             {
-                return Problem("Entity set 'MinimartDBContext.Customers'  is null.");
+                return Problem("Entity set 'MinimartDBContext.DeliveryStatuses'  is null.");
             }
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer != null)
+            var deliveryStatus = await _context.DeliveryStatuses.FindAsync(id);
+            if (deliveryStatus != null)
             {
-                _context.Customers.Remove(customer);
+                _context.DeliveryStatuses.Remove(deliveryStatus);
             }
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomerExists(int id)
+        private bool DeliveryStatusExists(int id)
         {
-          return (_context.Customers?.Any(e => e.CustomerId == id)).GetValueOrDefault();
+          return (_context.DeliveryStatuses?.Any(e => e.DeliveryStatusId == id)).GetValueOrDefault();
         }
     }
 }

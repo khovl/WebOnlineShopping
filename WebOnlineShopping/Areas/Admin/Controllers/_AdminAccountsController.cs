@@ -22,6 +22,8 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
         // GET: Admin/_AdminAccounts
         public async Task<IActionResult> Index()
         {
+
+            ViewData["QuyenTruyCap"] = new SelectList(_context.Roles, "RoleId", "Decription");
             var minimartDBContext = _context.Accounts.Include(a => a.Role);
             return View(await minimartDBContext.ToListAsync());
         }

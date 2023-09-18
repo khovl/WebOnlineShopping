@@ -2,101 +2,98 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Google.Apis.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using PagedList.Core;
 using WebOnlineShopping.Models;
 
 namespace WebOnlineShopping.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class _AdminCustomersController : Controller
+    public class _AdminNewsController : Controller
     {
         private readonly MinimartDBContext _context;
 
-        public _AdminCustomersController(MinimartDBContext context)
+        public _AdminNewsController(MinimartDBContext context)
         {
             _context = context;
         }
 
-        // GET: Admin/_AdminCustomers
-        public IActionResult Index(int? page)
+        // GET: Admin/_AdminNews
+        public async Task<IActionResult> Index()
         {
-            var pageNumber = page == null || page <= 0 ? 1 : page.Value;
-            var pageSize = 20;
-            var IsCustomers = _context.Customers.AsNoTracking().OrderByDescending(x => x.CreateDate);
-            PagedList<Customer> models = new PagedList<Customer>(IsCustomers, pageNumber, pageSize);
-            ViewBag.CurrentPage = pageNumber;
-            return View(models);
+            var minimartDBContext = _context.News.Include(n => n.Account);
+            return View(await minimartDBContext.ToListAsync());
         }
 
-        // GET: Admin/_AdminCustomers/Details/5
+        // GET: Admin/_AdminNews/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Customers == null)
+            if (id == null || _context.News == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (customer == null)
+            var news = await _context.News
+                .Include(n => n.Account)
+                .FirstOrDefaultAsync(m => m.NewsId == id);
+            if (news == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(news);
         }
 
-        // GET: Admin/_AdminCustomers/Create
+        // GET: Admin/_AdminNews/Create
         public IActionResult Create()
         {
+            ViewData["AccountId"] = new SelectList(_context.Accounts, "AccountId", "AccountId");
             return View();
         }
 
-        // POST: Admin/_AdminCustomers/Create
+        // POST: Admin/_AdminNews/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,CustomerName,Birthday,Avatar,Address,Email,Phone,CreateDate,Password,LastLogin,Active")] Customer customer)
+        public async Task<IActionResult> Create([Bind("NewsId,Title,Sdesc,Content,Thumb,Pulished,Alias,CreateDate,Author,AccountId,Tags,CatId,IsHot,IsNewfeed,MetaDesc,MetaKey,Views")] News news)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(customer);
+                _context.Add(news);
                 await _context.SaveChangesAsync();
-                
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            ViewData["AccountId"] = new SelectList(_context.Accounts, "AccountId", "AccountId", news.AccountId);
+            return View(news);
         }
 
-        // GET: Admin/_AdminCustomers/Edit/5
+        // GET: Admin/_AdminNews/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Customers == null)
+            if (id == null || _context.News == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
+            var news = await _context.News.FindAsync(id);
+            if (news == null)
             {
                 return NotFound();
             }
-            return View(customer);
+            ViewData["AccountId"] = new SelectList(_context.Accounts, "AccountId", "AccountId", news.AccountId);
+            return View(news);
         }
 
-        // POST: Admin/_AdminCustomers/Edit/5
+        // POST: Admin/_AdminNews/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,CustomerName,Birthday,Avatar,Address,Email,Phone,CreateDate,Password,LastLogin,Active")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("NewsId,Title,Sdesc,Content,Thumb,Pulished,Alias,CreateDate,Author,AccountId,Tags,CatId,IsHot,IsNewfeed,MetaDesc,MetaKey,Views")] News news)
         {
-            if (id != customer.CustomerId)
+            if (id != news.NewsId)
             {
                 return NotFound();
             }
@@ -105,12 +102,12 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(customer);
+                    _context.Update(news);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CustomerExists(customer.CustomerId))
+                    if (!NewsExists(news.NewsId))
                     {
                         return NotFound();
                     }
@@ -121,49 +118,51 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(customer);
+            ViewData["AccountId"] = new SelectList(_context.Accounts, "AccountId", "AccountId", news.AccountId);
+            return View(news);
         }
 
-        // GET: Admin/_AdminCustomers/Delete/5
+        // GET: Admin/_AdminNews/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Customers == null)
+            if (id == null || _context.News == null)
             {
                 return NotFound();
             }
 
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
-            if (customer == null)
+            var news = await _context.News
+                .Include(n => n.Account)
+                .FirstOrDefaultAsync(m => m.NewsId == id);
+            if (news == null)
             {
                 return NotFound();
             }
 
-            return View(customer);
+            return View(news);
         }
 
-        // POST: Admin/_AdminCustomers/Delete/5
+        // POST: Admin/_AdminNews/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Customers == null)
+            if (_context.News == null)
             {
-                return Problem("Entity set 'MinimartDBContext.Customers'  is null.");
+                return Problem("Entity set 'MinimartDBContext.News'  is null.");
             }
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer != null)
+            var news = await _context.News.FindAsync(id);
+            if (news != null)
             {
-                _context.Customers.Remove(customer);
+                _context.News.Remove(news);
             }
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomerExists(int id)
+        private bool NewsExists(int id)
         {
-          return (_context.Customers?.Any(e => e.CustomerId == id)).GetValueOrDefault();
+          return (_context.News?.Any(e => e.NewsId == id)).GetValueOrDefault();
         }
     }
 }

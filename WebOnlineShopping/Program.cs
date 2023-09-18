@@ -1,3 +1,5 @@
+using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Notyf.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Configuration;
@@ -9,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
    
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+builder.Services.AddNotyf(Config => { Config.DurationInSeconds = 3; Config.IsDismissable = true; Config.Position = NotyfPosition.TopRight; });
 builder.Services.AddDbContext<MinimartDBContext>(option =>option.UseSqlServer(builder.Configuration.GetConnectionString("WebOnlineShopping")));
 var app = builder.Build();
 

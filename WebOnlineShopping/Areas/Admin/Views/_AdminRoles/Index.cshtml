@@ -6,10 +6,16 @@
 }
 
 <style>
-    .table {
+    .table  {
         max-width:80%;
         margin-top:30px;
         margin-left:auto
+    }
+
+    .form-select {
+        max-width: 20%;
+        margin-top: 30px;
+        margin-left: auto
     }
     button{
         width:60px;
@@ -32,9 +38,25 @@
         margin-left:280px
     }
 
+    .nav {
+        margin-top: 30px;
+        margin-left: 300px;
+    }
+
+    .parent-pagination {
+        
+        max-width: 20%;       
+        margin-left: auto;
+    }
 </style>
-
-
+<h3 class="nav">
+    <a asp-area="Admin" asp-controller="Home" asp-action="Index"><span class="text-muted fw-light">Quản lý / </span> </a>
+    <a>Quản lý quyền truy cập</a>
+</h3>
+<select class="form-select" asp-items="ViewBag.QuyenTruyCap">
+    <option value="0" selected>Chọn Quyền truy cập</option>
+   
+</select>
 
 <table class="table">
     <thead>
@@ -46,7 +68,7 @@
                 Tên
             </th>
             <th>
-                Mô tả
+                Quyền truy cập
             </th>
             <th>
                 Chức năng
@@ -85,3 +107,18 @@
         <a asp-action="Create">Thêm mới</a>
     </button>
 </p>
+<div class="parent-pagination" aria-label="...">
+    <ul class="pagination">
+        <li class="page-item disabled">
+            <span class="page-link">Previous</span>
+        </li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item active" aria-current="page">
+            <span class="page-link">2</span>
+        </li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+        </li>
+    </ul>
+</div>

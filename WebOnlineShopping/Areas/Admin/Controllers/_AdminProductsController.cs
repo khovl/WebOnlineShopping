@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCoreHero.ToastNotification.Abstractions;
+using AspNetCoreHero.ToastNotification.Notyf;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using PagedList.Core;
 using WebOnlineShopping.Models;
 
 namespace WebOnlineShopping.Areas.Admin.Controllers
@@ -13,19 +16,45 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
     public class _AdminProductsController : Controller
     {
         private readonly MinimartDBContext _context;
-
-        public _AdminProductsController(MinimartDBContext context)
+        public INotyfService _notyfService { get; }
+        public _AdminProductsController(MinimartDBContext context, INotyfService notyfService)
         {
             _context = context;
+            _notyfService = notyfService;
         }
 
         // GET: Admin/_AdminProducts
-        public async Task<IActionResult> Index()
+        public IActionResult Index(string name, double? to,double? from)
         {
-            var minimartDBContext = _context.Products.Include(p => p.Cat);
-            return View(await minimartDBContext.ToListAsync());
-        }
+            var products = from b in _context.Products select b;
+            if(!string.IsNullOrEmpty(name))
+            {
+                if(to !=null && from!= null)
+                {
+                    products = products.Where(x => x.ProductName.Contains(name) && x.Price >= to && x.Price<= from);
+                }
+                else
+                {
+                    products = products.Where(x => x.ProductName.Contains(name));
+                }
 
+            }
+            else
+            {
+                if (to != null && from != null)
+                {
+                    products = products.Where(x => x.ProductName.Contains(name) && x.Price >= to && x.Price <= from);
+                }
+            }
+            
+            return View(products);
+        }
+        public IActionResult Paging(int page=1)
+        {
+            int pagesize = 5;
+            var products = _context.Products.ToPagedList(page,pagesize);
+            return View(products);
+        }
         // GET: Admin/_AdminProducts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -48,7 +77,7 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
         // GET: Admin/_AdminProducts/Create
         public IActionResult Create()
         {
-            ViewData["CatId"] = new SelectList(_context.Categories, "CatId", "CatId");
+            ViewBag.CatId = new SelectList(_context.Categories, "CatId","CatName");
             return View();
         }
 
@@ -63,9 +92,10 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
             {
                 _context.Add(product);
                 await _context.SaveChangesAsync();
+                _notyfService.Success("Thêm mới thành công");
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CatId"] = new SelectList(_context.Categories, "CatId", "CatId", product.CatId);
+            ViewBag.CatId = new SelectList(_context.Categories, "CatId", "CatName", product.CatId);
             return View(product);
         }
 
@@ -82,7 +112,7 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["CatId"] = new SelectList(_context.Categories, "CatId", "CatId", product.CatId);
+            ViewBag.CatId = new SelectList(_context.Categories, "CatId", "CatName", product.CatId);
             return View(product);
         }
 
@@ -104,6 +134,7 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
                 {
                     _context.Update(product);
                     await _context.SaveChangesAsync();
+                    _notyfService.Success("Cập nhật thành công");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -118,7 +149,7 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CatId"] = new SelectList(_context.Categories, "CatId", "CatId", product.CatId);
+            ViewBag.CatId = new SelectList(_context.Categories, "CatId", "CatName", product.CatId);
             return View(product);
         }
 
@@ -157,6 +188,7 @@ namespace WebOnlineShopping.Areas.Admin.Controllers
             }
             
             await _context.SaveChangesAsync();
+            _notyfService.Success("Xóa thành công");
             return RedirectToAction(nameof(Index));
         }
 
